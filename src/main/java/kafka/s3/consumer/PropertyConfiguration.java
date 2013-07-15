@@ -19,6 +19,7 @@ public class PropertyConfiguration extends PropertiesConfiguration implements
 	// conf property names
 	public static final String ZK_CONNECT_STRING = "zk.connect";
 	public static final String ZK_SESSION_TIMEOUT = "zk.sessiontimeout.ms";
+	public static final String ZK_SYNC_TIME       =	"zk.synctime.ms";
 	public static final String CONSUMER_GROUP_ID = "KafkaConsumer.groupId";
 
 	public static final String DEFAULT_FETCH_SIZE = "fetch.size";

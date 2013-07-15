@@ -8,7 +8,7 @@ import kafka.message.MessageAndMetadata;
 
 interface Sink {
 
-	public long append(MessageAndMetadata<Message> messageAndOffset)
+	public long append(MessageAndMetadata<byte[], byte[]> messageAndOffset)
 			throws IOException;
 	public void addObserver(Observer o);
 }

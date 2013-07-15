@@ -89,7 +89,7 @@ public class App {
 		private final ConsumerConnector consumer;
 		private long messageCount = 0;
 		private long totalMessageSize = 0;
-		Map<String, List<KafkaStream<Message>>> consumerMap;
+		Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap;
 
 		private ArchivingWorker(String topic, int partition,
 				PropertyConfiguration masterConfig, ExecutorService pool) {
@@ -104,19 +104,19 @@ public class App {
 		private static ConsumerConfig createConsumerConfig(String topic,
 				PropertyConfiguration conf) {
 			Properties props = new Properties();
-			String fetchSize;
-
-			props.put("autocommit.enable", "false");
+			String fetchSize;			
 
 			logger.debug("Zookeeper connect string {}",
 					conf.getString(PropertyConfiguration.ZK_CONNECT_STRING));
 			props.put("zk.connect",
 					conf.getString(PropertyConfiguration.ZK_CONNECT_STRING));
-			props.put("groupid",
+			props.put("group.id",
 					conf.getString(PropertyConfiguration.CONSUMER_GROUP_ID));
 			props.put("zk.sessiontimeout.ms",
 					conf.getString(PropertyConfiguration.ZK_SESSION_TIMEOUT));
-			props.put("zk.synctime.ms", conf.getString("zk.synctime.ms"));
+			props.put("zk.synctime.ms", 
+					conf.getString(PropertyConfiguration.ZK_SYNC_TIME));
+			props.put("auto.commit.enable", "false");
 
 			fetchSize = conf.getString(PropertyConfiguration.DEFAULT_FETCH_SIZE
 					+ "." + topic,
@@ -143,10 +143,10 @@ public class App {
 				consumerMap = consumer.createMessageStreams(topicCountMap);
 				if (consumerMap.containsKey(topic)
 						&& consumerMap.get(topic).size() > 0) {
-					KafkaStream<Message> stream = consumerMap.get(topic).get(0);
-					ConsumerIterator<Message> it = stream.iterator();
+					KafkaStream<byte[], byte[]> stream = consumerMap.get(topic).get(0);
+					ConsumerIterator<byte[], byte[]> it = stream.iterator();
 					while (it.hasNext()) {
-						MessageAndMetadata<Message> msgAndMetadata = it.next();
+						MessageAndMetadata<byte[], byte[]> msgAndMetadata = it.next();
 						totalMessageSize += sink.append(msgAndMetadata);
 						messageCount += 1;
 					}

@@ -22,7 +22,6 @@ class S3JsonFileSink extends S3SinkBase implements Sink {
 	private long startOffset;
 	private long endOffset;
 	private int bytesWritten;
-	ByteBuffer buffer;
 	GZIPOutputStream goutStream;
 
 	File tmpFile;
@@ -56,9 +55,10 @@ class S3JsonFileSink extends S3SinkBase implements Sink {
 	}
 
 	@Override
-	public long append(MessageAndMetadata<Message> msgAndMetadata)
+	public long append(MessageAndMetadata<byte[], byte[]> msgAndMetadata)
 			throws IOException {
-		int messageSize = msgAndMetadata.message().payload().remaining();
+		byte[] bytes = msgAndMetadata.message();
+		int messageSize = bytes.length;
 		// logger.debug("Appending message with size: " + messageSize);
 
 		if (bytesWritten + messageSize > s3MaxObjectSize) {
@@ -71,10 +71,6 @@ class S3JsonFileSink extends S3SinkBase implements Sink {
 			startOffset = endOffset;
 			bytesWritten = 0;
 		}
-
-		ByteBuffer buffer = msgAndMetadata.message().payload();
-		byte[] bytes = new byte[buffer.remaining()];
-		buffer.get(bytes);
 
 		goutStream.write(bytes);
 		goutStream.write('\n');
